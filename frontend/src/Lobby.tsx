@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { socket, HTTP_URL } from "./socket";
-import type { Player, Room } from "../util/types";
+import type { Player, Room } from "../../util/types";
 
 interface LobbyProps {
   screen: string;
@@ -89,7 +89,6 @@ export function Lobby({ setScreen }: LobbyProps) {
         players: [player],
         maxPlayers,
         createdAt: new Date(),
-        ready: [],
       });
 
       // Connect via WebSocket
@@ -167,8 +166,9 @@ export function Lobby({ setScreen }: LobbyProps) {
 
   // Listen for room state updates
   useEffect(() => {
-    const handleRoomState = (data: any) => {
-      if (data.game) {
+    const handleRoomState = (data: {room: Room}) => {
+      const { room } = data;
+      if (room.game) {
         // Game has started
         setScreen("GAME");
       } else {
@@ -177,8 +177,7 @@ export function Lobby({ setScreen }: LobbyProps) {
           prev
             ? {
                 ...prev,
-                players: data.players,
-                readyPlayers: data.readyPlayers,
+                players: room.players,
               }
             : null,
         );

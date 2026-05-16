@@ -36,6 +36,5 @@ export interface Room {
   players: Player[];
   maxPlayers: number;
   createdAt: Date;
-  ready: boolean[];
   game?: Game;
 }

@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import { newGame } from "../util/game";
 
-import type { Move, Game, Room, Player } from "../util/types";
+import type { Move, Game, Player, Room } from "../util/types";
 
 const app = express();
 const server = createServer(app);
@@ -50,7 +50,6 @@ app.post("/api/rooms", (req, res) => {
     name,
     players: [],
     maxPlayers: Math.min(maxPlayers, 8), // Cap at 8 players
-    ready: [],
     createdAt: new Date(),
   };
 
@@ -89,14 +88,7 @@ app.get("/api/rooms/:roomId", (req, res) => {
     return res.status(404).json({ error: "Room not found" });
   }
 
-  res.json({
-    id: room.id,
-    name: room.name,
-    players: room.players,
-    playerCount: room.players.length,
-    maxPlayers: room.maxPlayers,
-    isFull: room.players.length >= room.maxPlayers,
-  });
+  res.json(room);
 });
 
 // HTTP endpoint to join a room (returns connection info)
@@ -131,10 +123,6 @@ app.post("/api/rooms/:roomId/join", (req, res) => {
   });
 });
 
-app.get("/api/rooms/:roomId/enter", (req, res) => {
-  
-});
-
 // WebSocket connection handling
 io.on("connection", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
@@ -155,14 +143,9 @@ io.on("connection", (socket) => {
       socket.join(room.id);
 
       console.log(`Player ${player.id} (${player.name}) joined!`);
-      
+
       // Send current room state to the joining player
-      socket.emit("room-state", {
-        roomName: room.name,
-        players: room.players,
-        readyPlayers: room.ready,
-        maxPlayers: room.maxPlayers,
-      });
+      socket.emit("room-state", { room });
     },
   );
   
@@ -183,23 +166,10 @@ io.on("connection", (socket) => {
 
     if (room.players.length > 1 && room.players.every((p: Player) => p.ready)) {
       newGame(room);
-      io.to(room.id).emit("room-state", {
-        roomName: room.name,
-        players: room.players,
-        playerCount: room.players.length,
-        readyPlayers: room.ready,
-        maxPlayers: room.maxPlayers,
-        game: room.game,
-      });
+      io.to(room.id).emit("room-state", { room });
     }
 
-    io.to(room.id).emit("room-state", {
-      roomName: room.name,
-      players: room.players,
-      playerCount: room.players.length,
-      readyPlayers: room.ready,
-      maxPlayers: room.maxPlayers,
-    });
+    io.to(room.id).emit("room-state", { room });
   });
 
   socket.on("player-move", (data: { playerId: string, move: Move }) => {
