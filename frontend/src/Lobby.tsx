@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { socket, HTTP_URL } from "./socket";
+import { styles } from "./Lobby.styles";
 import type { Player, Room } from "../../util/types";
 
 interface LobbyProps {
@@ -66,14 +67,11 @@ export function Lobby({ setScreen }: LobbyProps) {
       const roomId = createData.room.id;
 
       // Join room
-      const joinResponse = await fetch(
-        `${HTTP_URL}/api/rooms/${roomId}/join`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ playerName }),
-        },
-      );
+      const joinResponse = await fetch(`${HTTP_URL}/api/rooms/${roomId}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName }),
+      });
 
       if (!joinResponse.ok) {
         throw new Error("Failed to join room");
@@ -116,14 +114,11 @@ export function Lobby({ setScreen }: LobbyProps) {
 
     try {
       // Join room
-      const joinResponse = await fetch(
-        `${HTTP_URL}/api/rooms/${roomId}/join`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ playerName }),
-        },
-      );
+      const joinResponse = await fetch(`${HTTP_URL}/api/rooms/${roomId}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName }),
+      });
 
       if (!joinResponse.ok) {
         throw new Error("Failed to join room");
@@ -133,9 +128,7 @@ export function Lobby({ setScreen }: LobbyProps) {
       const player = joinData.player;
 
       // Get room details
-      const roomResponse = await fetch(
-        `${HTTP_URL}/api/rooms/${roomId}`,
-      );
+      const roomResponse = await fetch(`${HTTP_URL}/api/rooms/${roomId}`);
       if (!roomResponse.ok) {
         throw new Error("Failed to get room details");
       }
@@ -166,7 +159,7 @@ export function Lobby({ setScreen }: LobbyProps) {
 
   // Listen for room state updates
   useEffect(() => {
-    const handleRoomState = (data: {room: Room}) => {
+    const handleRoomState = (data: { room: Room }) => {
       const { room } = data;
       if (room.game) {
         // Game has started
@@ -360,171 +353,3 @@ export function Lobby({ setScreen }: LobbyProps) {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    padding: "20px",
-    backgroundColor: "#f5f5f5",
-  },
-  title: {
-    fontSize: "48px",
-    fontWeight: "bold",
-    marginBottom: "40px",
-    color: "#333",
-  },
-  menu: {
-    display: "flex",
-    gap: "20px",
-    flexDirection: "column" as const,
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "15px",
-    width: "100%",
-    maxWidth: "400px",
-  },
-  input: {
-    padding: "10px",
-    fontSize: "16px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-    fontFamily: "inherit",
-  },
-  slider: {
-    width: "100%",
-    cursor: "pointer",
-  },
-  formGroup: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "8px",
-  },
-  label: {
-    fontSize: "14px",
-    fontWeight: "500" as const,
-    color: "#666",
-  },
-  button: {
-    padding: "12px 24px",
-    fontSize: "16px",
-    fontWeight: "bold" as const,
-    backgroundColor: "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.3s",
-  },
-  secondaryButton: {
-    padding: "12px 24px",
-    fontSize: "16px",
-    fontWeight: "bold" as const,
-    backgroundColor: "#6c757d",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.3s",
-  },
-  error: {
-    color: "#d32f2f",
-    backgroundColor: "#ffebee",
-    padding: "12px",
-    borderRadius: "4px",
-    marginBottom: "20px",
-    maxWidth: "400px",
-  },
-  joinView: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "20px",
-    width: "100%",
-    maxWidth: "500px",
-  },
-  roomsList: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "10px",
-    maxHeight: "400px",
-    overflowY: "auto" as const,
-  },
-  roomCard: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "15px",
-    backgroundColor: "white",
-    borderRadius: "4px",
-    border: "1px solid #ddd",
-  },
-  roomInfo: {
-    flex: 1,
-  },
-  roomName: {
-    margin: "0 0 5px 0",
-    fontSize: "18px",
-    color: "#333",
-  },
-  roomDetails: {
-    margin: 0,
-    fontSize: "14px",
-    color: "#666",
-  },
-  noRooms: {
-    textAlign: "center" as const,
-    color: "#999",
-    padding: "20px",
-  },
-  roomView: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "20px",
-    width: "100%",
-    maxWidth: "400px",
-    backgroundColor: "white",
-    padding: "30px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-  },
-  roomTitle: {
-    margin: "0 0 20px 0",
-    fontSize: "28px",
-    color: "#333",
-  },
-  playersList: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "10px",
-  },
-  playerItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "4px",
-    border: "1px solid #eee",
-  },
-  readyBadge: {
-    backgroundColor: "#4caf50",
-    color: "white",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    fontWeight: "bold" as const,
-  },
-  waitingMessage: {
-    textAlign: "center" as const,
-    padding: "15px",
-    backgroundColor: "#e3f2fd",
-    color: "#1976d2",
-    borderRadius: "4px",
-    fontWeight: "500" as const,
-  },
-};

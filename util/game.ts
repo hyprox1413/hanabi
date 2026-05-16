@@ -4,8 +4,12 @@ const COLORS = [ "red", "green", "blue", "yellow", "white" ];
 const NUM_COPIES = [ 3, 2, 2, 2, 1 ];
 const CARDS_PER_HAND = 4;
 
+export function getTurnPlayer(game: Game): number {
+  return game.moveHistory.length % game.hands.length;
+}
+
 function validateMove(game: Game, move: Move): boolean {
-  const turnPlayer = game.moveHistory.length % game.hands.length;
+  const turnPlayer = getTurnPlayer(game);
   if (move.action == "play" || move.action == "discard") {
     if (game.hands[turnPlayer]![move.cardIndex] == undefined) return false;
   }
@@ -21,15 +25,15 @@ function validateMove(game: Game, move: Move): boolean {
 }
 
 function loseCard(game: Game, move: Move) {
-  const turnPlayer = game.moveHistory.length % game.hands.length;
+  const turnPlayer = getTurnPlayer(game);
   game.hands[turnPlayer]!.splice(move.cardIndex, 1);
   const newCard = game.deck.pop();
   if (newCard) game.hands[turnPlayer]!.push(newCard);
 }
 
-function makeMove(game: Game, move: Move): boolean {
+export function makeMove(game: Game, move: Move): boolean {
   if (!validateMove(game, move)) return false;
-  const turnPlayer = game.moveHistory.length % game.hands.length;
+  const turnPlayer = getTurnPlayer(game);
   
   if (move.action == "play") {
     const card = game.hands[turnPlayer]![move.cardIndex]!;

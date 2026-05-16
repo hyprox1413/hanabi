@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Server } from "socket.io";
-import { newGame } from "../util/game";
+import { newGame, getTurnPlayer, makeMove } from "../util/game";
 
 import type { Move, Game, Player, Room } from "../util/types";
 
@@ -176,10 +176,29 @@ io.on("connection", (socket) => {
     const { playerId, move } = data;
     const room = roomsByPlayer.get(playerId);
     if (!room) {
-      socket.emit("error", { message: "Room not found" });
+      socket.emit("error", { message: "Player not in room" });
       return;
     }
-    
+    if (!room.game) {
+      socket.emit("error", { message: "Game not started" });
+      return;
+    }
+    let playerTurn = -1;
+    for (let i = 0; i < room.players.length; i++) {
+      if (room.players[i]!.id === playerId) {
+        playerTurn = i;
+        break;
+      }
+    }
+    if (playerTurn !== getTurnPlayer(room.game)) {
+      socket.emit("error", { message: "It's not your turn!" });
+      return;
+    }
+    if (!makeMove(room.game, move)) {
+      socket.emit("error", { message: "Illegal move." });
+      return;
+    }
+    socket.emit("room-state", { room });
   });
 });
 
