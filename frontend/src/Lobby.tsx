@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { socket, HTTP_URL } from "./socket";
 import { styles } from "./Lobby.styles";
+
 import type { Player, Room } from "../../util/types";
+import type { Dispatch, SetStateAction } from "react";
 
 interface LobbyProps {
   screen: string;
-  setScreen: (screen: string) => void;
+  setScreen: Dispatch<SetStateAction<string>>;
+  currentRoom: Room | null;
+  setCurrentRoom: Dispatch<SetStateAction<Room | null>>;
+  currentPlayer: Player | null;
+  setCurrentPlayer: Dispatch<SetStateAction<Player | null>>;
 }
 
 interface RoomListItem {
@@ -16,14 +22,12 @@ interface RoomListItem {
   isFull: boolean;
 }
 
-export function Lobby({ setScreen }: LobbyProps) {
+export function Lobby({ setScreen, currentRoom, setCurrentRoom, currentPlayer, setCurrentPlayer }: LobbyProps) {
   const [view, setView] = useState<"menu" | "create" | "join" | "room">("menu");
   const [playerName, setPlayerName] = useState("");
   const [roomName, setRoomName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [rooms, setRooms] = useState<RoomListItem[]>([]);
-  const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -166,7 +170,7 @@ export function Lobby({ setScreen }: LobbyProps) {
         setScreen("GAME");
       } else {
         // Update room state
-        setCurrentRoom((prev) =>
+        setCurrentRoom((prev: Room | null) =>
           prev
             ? {
                 ...prev,

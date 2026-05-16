@@ -195,7 +195,7 @@ io.on("connection", (socket) => {
       socket.emit("error", { message: "Illegal move." });
       return;
     }
-    socket.emit("room-state", { room });
+    io.to(room.id).emit("room-state", { room });
   });
 });
 
