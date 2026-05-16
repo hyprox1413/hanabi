@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import { newGame, getTurnPlayer, makeMove } from "../util/game";
 
-import type { Move, Game, Player, Room } from "../util/types";
+import type { MoveInfo, GameState, PlayerInfo, RoomInfo } from "../util/types";
 
 const app = express();
 const server = createServer(app);
@@ -20,8 +20,8 @@ io.listen(4000);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const rooms = new Map<string, Room>();
-const roomsByPlayer = new Map<string, Room>();
+const rooms = new Map<string, RoomInfo>();
+const roomsByPlayer = new Map<string, RoomInfo>();
 
 // Middleware
 app.use(express.json());
@@ -45,7 +45,7 @@ app.post("/api/rooms", (req, res) => {
   }
 
   const roomId = crypto.randomUUID();
-  const room: Room = {
+  const room: RoomInfo = {
     id: roomId,
     name,
     players: [],
@@ -112,7 +112,7 @@ app.post("/api/rooms/:roomId/join", (req, res) => {
   // Generate a player ID for this session
   const playerId = crypto.randomUUID();
 
-  const player: Player = { id: playerId, name: playerName, ready: false };
+  const player: PlayerInfo = { id: playerId, name: playerName, ready: false };
   room.players.push(player);
   roomsByPlayer.set(playerId, room);
 
@@ -128,7 +128,7 @@ io.on("connection", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
   // Player joins a room via WebSocket
-  socket.on("enter-room", (data: { player: Player }) => {
+  socket.on("enter-room", (data: { player: PlayerInfo }) => {
     const { player } = data;
 
     const room = roomsByPlayer.get(player.id);
@@ -161,18 +161,16 @@ io.on("connection", (socket) => {
       }
     }
 
-    if (room.players.length > 1 && room.players.every((p: Player) => p.ready)) {
+    if (room.players.length > 1 && room.players.every((p: PlayerInfo) => p.ready)) {
       newGame(room, room.players.length);
     }
 
     io.to(room.id).emit("room-state", { room });
   });
 
-  socket.on("player-move", (data: { playerId: string; move: Move }) => {
+  socket.on("player-move", (data: { playerId: string; move: MoveInfo }) => {
     const { playerId, move } = data;
     const room = roomsByPlayer.get(playerId);
-    
-    console.log("received move: ", move);
     
     if (!room) {
       socket.emit("error", { message: "Player not in room" });
@@ -189,6 +187,10 @@ io.on("connection", (socket) => {
         break;
       }
     }
+    
+    console.log("player turn: ", playerTurn);
+    console.log("received move: ", move);
+    
     if (playerTurn !== getTurnPlayer(room.game)) {
       socket.emit("error", { message: "It's not your turn!" });
       return;

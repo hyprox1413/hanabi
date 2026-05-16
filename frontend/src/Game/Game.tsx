@@ -1,28 +1,25 @@
 import { useState, useEffect } from "react";
-import { socket } from "./socket";
+import { socket } from "../socket";
 import { styles } from "./Game.styles";
+import { COLORS, getCardColor } from "./constants";
+import { Card } from "./Card";
 
-import type { Game as GameState, Card, Player, Room } from "../../util/types";
+import type {
+  GameState,
+  CardInfo,
+  PlayerInfo,
+  RoomInfo,
+} from "../../../util/types";
 import type { Dispatch, SetStateAction } from "react";
-
 
 interface GameProps {
   screen: string;
   setScreen: Dispatch<SetStateAction<string>>;
-  room: Room;
-  setRoom: Dispatch<SetStateAction<Room>>;
-  currentPlayer: Player;
-  setCurrentPlayer: Dispatch<SetStateAction<Player>>;
+  room: RoomInfo;
+  setRoom: Dispatch<SetStateAction<RoomInfo>>;
+  currentPlayer: PlayerInfo;
+  setCurrentPlayer: Dispatch<SetStateAction<PlayerInfo>>;
 }
-
-const COLORS = ["Red", "Yellow", "Green", "Blue", "Purple"];
-const COLOR_MAP: Record<number, string> = {
-  0: "#ef5350",
-  1: "#fbc02d",
-  2: "#66bb6a",
-  3: "#42a5f5",
-  4: "#ab47bc",
-};
 
 export function Game({ room, currentPlayer }: GameProps) {
   const [gameState, setGameState] = useState<GameState | null>(room.game);
@@ -45,18 +42,14 @@ export function Game({ room, currentPlayer }: GameProps) {
       setError("");
     };
 
-    const logError = (data) => {
-      console.error(data);
-    }
-
     socket.on("game-state", handleGameUpdate);
-    socket.on("error", logError)
+    socket.on("error", console.error);
 
     return () => {
       socket.off("game-state", handleGameUpdate);
     };
   });
-  
+
   const playerTurn = room.players.findIndex((p) => p.id === currentPlayer.id);
 
   if (!gameState) {
@@ -116,11 +109,14 @@ export function Game({ room, currentPlayer }: GameProps) {
     const action = selectedHintType === "rank" ? "hintRank" : "hintColor";
 
     socket.emit("player-move", {
-      action,
-      cardIndex: selectedCard,
-      hintPlayerIndex: selectedHintPlayer,
-      hintRank: selectedHintType === "rank" ? selectedHintValue : undefined,
-      hintColor: selectedHintType === "color" ? selectedHintValue : undefined,
+      playerId: currentPlayer.id,
+      move: {
+        action,
+        cardIndex: selectedCard,
+        hintPlayerIndex: selectedHintPlayer,
+        hintRank: selectedHintType === "rank" ? selectedHintValue : undefined,
+        hintColor: selectedHintType === "color" ? selectedHintValue : undefined,
+      }
     });
 
     setSelectedCard(null);
@@ -129,53 +125,12 @@ export function Game({ room, currentPlayer }: GameProps) {
     setSelectedHintValue(null);
   };
 
-  const getCardColor = (colorIndex: number): string => {
-    return COLOR_MAP[colorIndex] || "#999";
-  };
-
-  const renderCard = (card: Card, index: number, isOwnCard: boolean) => {
-    const isSelected = selectedCard === index;
-
-    return (
-      <div
-        key={index}
-        style={{
-          ...styles.card,
-          ...(isOwnCard ? styles.ownCard : styles.otherCard),
-          ...(isSelected ? styles.cardSelected : {}),
-          backgroundColor: isOwnCard ? "#ccc" : getCardColor(card.color),
-          cursor: isOwnCard ? "not-allowed" : "pointer",
-          opacity: isOwnCard ? 0.6 : 1,
-        }}
-        onClick={() => !isOwnCard && setSelectedCard(index)}
-      >
-        {!isOwnCard && (
-          <>
-            <div style={styles.cardRank}>
-              {card.rankKnown ? card.rank : "?"}
-            </div>
-            <div style={styles.cardColor}>
-              {card.colorKnown ? COLORS[card.color] : "?"}
-            </div>
-            {(card.rankKnown || card.colorKnown) && (
-              <div style={styles.cardKnownInfo}>
-                {card.rankKnown && `${card.rank}`}
-                {card.rankKnown && card.colorKnown && " "}
-                {card.colorKnown && COLORS[card.color][0]}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    );
-  };
-
   const renderTableau = () => {
     return (
       <div style={styles.tableauContainer}>
         <h3 style={styles.sectionTitle}>Tableau</h3>
         <div style={styles.tableau}>
-          {gameState.tableau.map((count, colorIndex) => (
+          {gameState.tableau.map((count: number, colorIndex: number) => (
             <div key={colorIndex} style={styles.tableauStack}>
               <div
                 style={{
@@ -218,14 +173,12 @@ export function Game({ room, currentPlayer }: GameProps) {
     );
   };
 
-  const renderOtherPlayersHands = () => {
+  const renderHands = () => {
     return (
-      <div style={styles.otherPlayersContainer}>
-        <h3 style={styles.sectionTitle}>Other Players</h3>
-        <div style={styles.otherPlayersGrid}>
+      <div style={styles.allHandsContainer}>
+        <h3 style={styles.sectionTitle}>All Hands</h3>
+        <div style={styles.allHandsGrid}>
           {gameState.hands.map((hand, playerIndex) => {
-            if (playerIndex === playerTurn) return null;
-
             const playerName =
               room.players[playerIndex]?.name || `Player ${playerIndex}`;
 
@@ -233,9 +186,15 @@ export function Game({ room, currentPlayer }: GameProps) {
               <div key={playerIndex} style={styles.playerHandContainer}>
                 <h4 style={styles.playerName}>{playerName}</h4>
                 <div style={styles.playerHand}>
-                  {hand.map((card, cardIndex) =>
-                    renderCard(card, cardIndex, false),
-                  )}
+                  {hand.map((card, cardIndex) => (
+                    <Card
+                      card={card}
+                      index={cardIndex}
+                      isOwnCard={playerIndex === playerTurn}
+                      selectedCard={selectedCard}
+                      setSelectedCard={setSelectedCard}
+                    />
+                  ))}
                 </div>
               </div>
             );
@@ -270,15 +229,6 @@ export function Game({ room, currentPlayer }: GameProps) {
     return (
       <div style={styles.actionsContainer}>
         <div style={styles.actionGroup}>
-          <h4 style={styles.actionTitle}>Your Hand</h4>
-          <div style={styles.playerHand}>
-            {gameState.hands[playerTurn]?.map((card, cardIndex) =>
-              renderCard(card, cardIndex, true),
-            )}
-          </div>
-        </div>
-
-        <div style={styles.actionGroup}>
           <h4 style={styles.actionTitle}>Actions</h4>
           <div style={styles.buttonGroup}>
             <button
@@ -289,7 +239,7 @@ export function Game({ room, currentPlayer }: GameProps) {
               onClick={playCard}
               disabled={selectedCard === null}
             >
-              Play Card
+              Play
             </button>
             <button
               style={{
@@ -299,7 +249,7 @@ export function Game({ room, currentPlayer }: GameProps) {
               onClick={discardCard}
               disabled={selectedCard === null}
             >
-              Discard Card
+              Discard
             </button>
           </div>
         </div>
@@ -408,7 +358,7 @@ export function Game({ room, currentPlayer }: GameProps) {
       {renderGameState()}
       {renderTableau()}
       {renderDiscardPile()}
-      {renderOtherPlayersHands()}
+      {renderHands()}
       {renderActions()}
     </div>
   );

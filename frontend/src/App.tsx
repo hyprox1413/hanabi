@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { socket } from "./socket";
-import { Lobby } from "./Lobby";
-import { Game } from "./Game";
+import { Lobby } from "./Lobby/Lobby";
+import { Game } from "./Game/Game";
+import { GameDebug } from "./debug/GameDebug";
 
-import type { Room, Player } from "../../util/types";
+import type { RoomInfo, PlayerInfo } from "../../util/types";
 
 import "./App.css";
 
@@ -14,8 +15,12 @@ const SCREENS = {
 
 function App() {
   const [screen, setScreen] = useState(SCREENS.LOBBY);
-  const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
+  const [currentRoom, setCurrentRoom] = useState<RoomInfo | null>(null);
+  const [currentPlayer, setCurrentPlayer] = useState<PlayerInfo | null>(null);
+  
+  if (import.meta.env.MODE === "debug") {
+    return <GameDebug />;
+  }
 
   return (
     <>

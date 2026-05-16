@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { socket, HTTP_URL } from "./socket";
+import { socket, HTTP_URL } from "../socket";
 import { styles } from "./Lobby.styles";
 
-import type { Player, Room } from "../../util/types";
+import type { PlayerInfo, RoomInfo } from "../../../util/types";
 import type { Dispatch, SetStateAction } from "react";
 
 interface LobbyProps {
   screen: string;
   setScreen: Dispatch<SetStateAction<string>>;
-  currentRoom: Room | null;
-  setCurrentRoom: Dispatch<SetStateAction<Room | null>>;
-  currentPlayer: Player | null;
-  setCurrentPlayer: Dispatch<SetStateAction<Player | null>>;
+  currentRoom: RoomInfo | null;
+  setCurrentRoom: Dispatch<SetStateAction<RoomInfo | null>>;
+  currentPlayer: PlayerInfo | null;
+  setCurrentPlayer: Dispatch<SetStateAction<PlayerInfo | null>>;
 }
 
 interface RoomListItem {
@@ -163,7 +163,7 @@ export function Lobby({ setScreen, currentRoom, setCurrentRoom, currentPlayer, s
 
   // Listen for room state updates
   useEffect(() => {
-    const handleRoomState = (data: { room: Room }) => {
+    const handleRoomState = (data: { room: RoomInfo }) => {
       const { room } = data;
       setCurrentRoom(room);
       if (room.game) {

@@ -1,11 +1,11 @@
-export interface Card {
+export interface CardInfo {
   rank: number;
   color: number;
   rankKnown: boolean;
   colorKnown: boolean;
 }
 
-export interface Move {
+export interface MoveInfo {
   action: "play" | "discard" | "hintRank" | "hintColor";
   cardIndex?: number;
   hintPlayerIndex?: number;
@@ -13,28 +13,28 @@ export interface Move {
   hintColor?: number;
 }
 
-export interface Game {
+export interface GameState {
   maxHints: number;
   hintsRemaining: number;
   livesRemaining: number;
-  deck: Card[];
-  hands: Card[][];
+  deck: CardInfo[];
+  hands: CardInfo[][];
   tableau: Number[];
-  discarded: Card[];
-  moveHistory: Move[];
+  discarded: CardInfo[];
+  moveHistory: MoveInfo[];
 }
 
-export interface Player {
+export interface PlayerInfo {
   id: string;
   name: string;
   ready: boolean;
 }
 
-export interface Room {
+export interface RoomInfo {
   id: string;
   name: string;
-  players: Player[];
+  players: PlayerInfo[];
   maxPlayers: number;
   createdAt: Date;
-  game?: Game;
+  game?: GameState;
 }

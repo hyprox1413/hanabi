@@ -51,11 +51,8 @@ export const styles = {
     flexDirection: "column" as const,
     gap: "15px",
     width: "100%",
-    maxWidth: "600px",
     backgroundColor: "white",
     padding: "20px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   },
   sectionTitle: {
     margin: "0 0 10px 0",
@@ -96,11 +93,8 @@ export const styles = {
     flexDirection: "column" as const,
     gap: "15px",
     width: "100%",
-    maxWidth: "600px",
     backgroundColor: "white",
     padding: "20px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   },
   discardGrid: {
     display: "grid",
@@ -132,20 +126,17 @@ export const styles = {
     margin: 0,
   },
 
-  // Other Players
-  otherPlayersContainer: {
+  allHandsContainer: {
     display: "flex",
     flexDirection: "column" as const,
     gap: "15px",
     width: "100%",
     backgroundColor: "white",
     padding: "20px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   },
-  otherPlayersGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+  allHandsGrid: {
+    display: "flex",
+    flexDirection: "column" as const,
     gap: "20px",
   },
   playerHandContainer: {
@@ -167,6 +158,7 @@ export const styles = {
     display: "flex",
     gap: "10px",
     flexWrap: "wrap" as const,
+    justifyContent: "center",
   },
 
   // Cards
@@ -175,7 +167,7 @@ export const styles = {
     flexDirection: "column" as const,
     alignItems: "center",
     justifyContent: "center",
-    width: "70px",
+    width: "100px",
     height: "100px",
     borderRadius: "6px",
     border: "2px solid rgba(0,0,0,0.2)",
@@ -183,20 +175,20 @@ export const styles = {
     transition: "transform 0.2s, box-shadow 0.2s",
   },
   otherCard: {
-    cursor: "pointer",
+    cursor: "not-allowed",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   ownCard: {
     backgroundColor: "#ccc",
     opacity: 0.6,
-    cursor: "not-allowed",
+    cursor: "pointer",
   },
   cardSelected: {
     transform: "scale(1.1)",
     boxShadow: "0 4px 12px rgba(0,0,0,0.3), 0 0 0 3px #007bff",
   },
   cardRank: {
-    fontSize: "14px",
+    fontSize: "30px",
     fontWeight: "bold" as const,
     color: "white",
     textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
@@ -209,9 +201,9 @@ export const styles = {
   },
   cardKnownInfo: {
     position: "absolute" as const,
-    bottom: "5px",
+    top: "5px",
     right: "5px",
-    fontSize: "10px",
+    fontSize: "20px",
     fontWeight: "bold" as const,
     color: "white",
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -247,6 +239,7 @@ export const styles = {
     display: "flex",
     gap: "10px",
     flexWrap: "wrap" as const,
+    justifyContent: "center",
   },
   actionButton: {
     padding: "10px 20px",
