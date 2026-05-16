@@ -18,7 +18,6 @@ const io = new Server({
 
 io.listen(4000);
 
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const rooms = new Map<string, Room>();
@@ -26,7 +25,11 @@ const roomsByPlayer = new Map<string, Room>();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
+);
 
 // Serve static files
 app.get("/", (req, res) => {
