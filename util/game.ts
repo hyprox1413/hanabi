@@ -1,7 +1,7 @@
 import type { Card, Move, Game, Room } from "./types";
 
 const COLORS = [ "red", "green", "blue", "yellow", "white" ];
-const NUM_COPIES = [ 3, 2, 2, 2, 1 ];
+const NUM_COPIES = [ 0, 3, 2, 2, 2, 1 ];
 const CARDS_PER_HAND = 4;
 
 export function getTurnPlayer(game: Game): number {
@@ -68,6 +68,7 @@ export function makeMove(game: Game, move: Move): boolean {
       if (card.color == move.hintColor) card.colorKnown = true;
     }
   }
+  game.moveHistory.push(move);
   return true;
 }
 
@@ -98,6 +99,12 @@ function dealCards(deck: Card[], hands: Card[][]) {
   }
 }
 
+function initializeTableau(game: Game) {
+  for (let i = 0; i < game.hands.length; i++) {
+    game.tableau.push(0);
+  }
+}
+
 export function newGame(room: Room) {
   room.game = {
     maxHints: 8,
@@ -112,4 +119,5 @@ export function newGame(room: Room) {
 
   newDeck(room.game.deck);
   dealCards(room.game.deck, room.game.hands);
+  initializeTableau(room.game);
 }

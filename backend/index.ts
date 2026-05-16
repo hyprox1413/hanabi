@@ -12,8 +12,8 @@ const app = express();
 const server = createServer(app);
 const io = new Server({
   cors: {
-    origin: "http://localhost:5173"
-  }
+    origin: "http://localhost:5173",
+  },
 });
 
 io.listen(4000);
@@ -128,36 +128,33 @@ io.on("connection", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
   // Player joins a room via WebSocket
-  socket.on(
-    "enter-room",
-    (data: { player: Player }) => {
-      const { player } = data;
+  socket.on("enter-room", (data: { player: Player }) => {
+    const { player } = data;
 
-      const room = roomsByPlayer.get(player.id);
-      if (!room) {
-        socket.emit("error", { message: "You have not joined a room" });
-        return;
-      }
+    const room = roomsByPlayer.get(player.id);
+    if (!room) {
+      socket.emit("error", { message: "You have not joined a room" });
+      return;
+    }
 
-      // Join socket to a room namespace
-      socket.join(room.id);
+    // Join socket to a room namespace
+    socket.join(room.id);
 
-      console.log(`Player ${player.id} (${player.name}) joined!`);
+    console.log(`Player ${player.id} (${player.name}) joined!`);
 
-      // Send current room state to the joining player
-      socket.emit("room-state", { room });
-    },
-  );
-  
+    // Send current room state to the joining player
+    socket.emit("room-state", { room });
+  });
+
   socket.on("get-ready", (data: { playerId: string }) => {
     const { playerId } = data;
-    
+
     const room = roomsByPlayer.get(playerId);
     if (!room) {
       socket.emit("error", { message: "Room not found" });
       return;
     }
-    
+
     for (const player of room.players) {
       if (player.id == playerId) {
         player.ready = true;
@@ -172,7 +169,7 @@ io.on("connection", (socket) => {
     io.to(room.id).emit("room-state", { room });
   });
 
-  socket.on("player-move", (data: { playerId: string, move: Move }) => {
+  socket.on("player-move", (data: { playerId: string; move: Move }) => {
     const { playerId, move } = data;
     const room = roomsByPlayer.get(playerId);
     if (!room) {
