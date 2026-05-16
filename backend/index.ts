@@ -11,7 +11,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server({
   cors: {
-    origin: "http://localhost:5173",
+    origin: "*",
   },
 });
 
@@ -24,7 +24,7 @@ const roomsByPlayer = new Map<string, RoomInfo>();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "*",
   }),
 );
 
