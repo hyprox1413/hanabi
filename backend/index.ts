@@ -1,12 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { createServer } from "node:http";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import { newGame, getTurnPlayer, makeMove } from "../util/game";
 
 import type { MoveInfo, GameState, PlayerInfo, RoomInfo } from "../util/types";
+import { couldStartTrivia } from "typescript";
 
 const app = express();
 const server = createServer(app);
@@ -18,8 +17,6 @@ const io = new Server({
 
 io.listen(4000);
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 const rooms = new Map<string, RoomInfo>();
 const roomsByPlayer = new Map<string, RoomInfo>();
 
@@ -30,11 +27,6 @@ app.use(
     origin: "http://localhost:5173",
   }),
 );
-
-// Serve static files
-app.get("/", (req, res) => {
-  res.sendFile(join(__dirname, "index.html"));
-});
 
 // HTTP endpoint to create a room
 app.post("/api/rooms", (req, res) => {
@@ -188,8 +180,8 @@ io.on("connection", (socket) => {
       }
     }
     
-    console.log("player turn: ", playerTurn);
-    console.log("received move: ", move);
+    // console.log("player turn: ", playerTurn);
+    // console.log("received move: ", move);
     
     if (playerTurn !== getTurnPlayer(room.game)) {
       socket.emit("error", { message: "It's not your turn!" });
@@ -199,7 +191,9 @@ io.on("connection", (socket) => {
       socket.emit("error", { message: "Illegal move." });
       return;
     }
-    io.to(room.id).emit("room-state", { room });
+
+    // console.log(`broadcasting following room state to ${room.id}: `, room);
+    io.to(room.id).emit("game-state", { game: room.game });
   });
 });
 

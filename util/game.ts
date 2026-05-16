@@ -11,25 +11,22 @@ export function getTurnPlayer(game: GameState): number {
 function validateMove(game: GameState, move: MoveInfo): boolean {
   const turnPlayer = getTurnPlayer(game);
   if (move.action === "play" || move.action === "discard") {
-    if (!move.cardIndex) return false;
-    if (game.hands[turnPlayer]![move.cardIndex] == undefined) return false;
+    if (move.cardIndex == null) return false;
+    if (game.hands[turnPlayer]?.[move.cardIndex] == null) return false;
   }
-  if (move.action === "hintColor") {
-    if (!move.hintPlayerIndex) return false;
+  if (move.action === "hintColor" || move.action === "hintRank") {
+    if (move.hintPlayerIndex == null) return false;
     if (move.hintPlayerIndex < 0 || move.hintPlayerIndex >= game.hands.length) return false;
     if (move.hintPlayerIndex == turnPlayer) return false;
     if (game.hintsRemaining < 1) return false;
-    
-    if (!move.hintColor) return false;
+  }
+  
+  if (move.action === "hintColor") {
+    if (move.hintColor == null) return false;
     if (move.hintColor < 0 || move.hintColor >= COLORS.length) return false;
   }
   if (move.action === "hintRank") {
-    if (!move.hintPlayerIndex) return false;
-    if (move.hintPlayerIndex < 0 || move.hintPlayerIndex >= game.hands.length) return false;
-    if (move.hintPlayerIndex == turnPlayer) return false;
-    if (game.hintsRemaining < 1) return false;
-    
-    if (!move.hintRank) return false;
+    if (move.hintRank == null) return false;
     if (move.hintRank < 0 || move.hintRank >= NUM_COPIES.length) return false;
   }
   return true;
@@ -37,7 +34,7 @@ function validateMove(game: GameState, move: MoveInfo): boolean {
 
 function loseCard(game: GameState, move: MoveInfo) {
   const turnPlayer = getTurnPlayer(game);
-  game.hands[turnPlayer]!.splice(move.cardIndex!, 1);
+  game.hands[turnPlayer]?.splice(move.cardIndex!, 1);
   const newCard = game.deck.pop();
   if (newCard) game.hands[turnPlayer]!.push(newCard);
 }
@@ -46,23 +43,22 @@ export function makeMove(game: GameState, move: MoveInfo): boolean {
   if (!validateMove(game, move)) return false;
   const turnPlayer = getTurnPlayer(game);
   
-  if (move.action === "play") {
+  if (move.action === "play" || move.action === "discard") {
     const card = game.hands[turnPlayer]![move.cardIndex!]!;
     loseCard(game, move);
     
-    if (game.tableau[card.color] == card.rank - 1) {
-      game.tableau[card.color] = card.rank;
-    } else {
-      game.livesRemaining--;
+    if (move.action === "play") {
+      if (game.tableau[card.color] == card.rank - 1) {
+        game.tableau[card.color] = card.rank;
+      } else {
+        game.livesRemaining--;
+      }
     }
-  }
-  
-  if (move.action === "discard") {
-    const card = game.hands[turnPlayer]![move.cardIndex!]!;
-    loseCard(game, move);
-    game.discarded.push(card);
-    if (game.hintsRemaining < game.maxHints) {
-      game.hintsRemaining++;
+    if (move.action === "discard") {
+      game.discarded.push(card);
+      if (game.hintsRemaining < game.maxHints) {
+        game.hintsRemaining++;
+      }
     }
   }
   

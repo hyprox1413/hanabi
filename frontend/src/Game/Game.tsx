@@ -3,6 +3,7 @@ import { socket } from "../socket";
 import { styles } from "./Game.styles";
 import { COLORS, getCardColor } from "./constants";
 import { Card } from "./Card";
+import { getTurnPlayer } from "../../../util/game";
 
 import type {
   GameState,
@@ -47,8 +48,9 @@ export function Game({ room, currentPlayer }: GameProps) {
 
     return () => {
       socket.off("game-state", handleGameUpdate);
+      socket.off("error", console.error);
     };
-  });
+  }, []);
 
   const playerTurn = room.players.findIndex((p) => p.id === currentPlayer.id);
 
@@ -92,12 +94,11 @@ export function Game({ room, currentPlayer }: GameProps) {
 
   const giveHint = () => {
     if (
-      selectedCard === null ||
       selectedHintPlayer === null ||
       selectedHintType === null ||
       selectedHintValue === null
     ) {
-      setError("Please select a card, player, hint type, and hint value");
+      setError("Please select a player, hint type, and hint value");
       return;
     }
 
@@ -116,7 +117,7 @@ export function Game({ room, currentPlayer }: GameProps) {
         hintPlayerIndex: selectedHintPlayer,
         hintRank: selectedHintType === "rank" ? selectedHintValue : undefined,
         hintColor: selectedHintType === "color" ? selectedHintValue : undefined,
-      }
+      },
     });
 
     setSelectedCard(null);
@@ -183,11 +184,19 @@ export function Game({ room, currentPlayer }: GameProps) {
               room.players[playerIndex]?.name || `Player ${playerIndex}`;
 
             return (
-              <div key={playerIndex} style={styles.playerHandContainer}>
+              <div
+                key={playerIndex}
+                style={
+                  getTurnPlayer(gameState) == playerIndex
+                    ? styles.turnPlayerHandContainer
+                    : styles.playerHandContainer
+                }
+              >
                 <h4 style={styles.playerName}>{playerName}</h4>
                 <div style={styles.playerHand}>
                   {hand.map((card, cardIndex) => (
                     <Card
+                      key={cardIndex}
                       card={card}
                       index={cardIndex}
                       isOwnCard={playerIndex === playerTurn}
@@ -262,7 +271,7 @@ export function Game({ room, currentPlayer }: GameProps) {
               value={selectedHintType || ""}
               onChange={(e) =>
                 setSelectedHintType(
-                  (e.target.value as "rank" | "color") || null,
+                  (e.target.value as "rank" | "color") ?? null,
                 )
               }
             >
@@ -276,7 +285,7 @@ export function Game({ room, currentPlayer }: GameProps) {
                 style={styles.select}
                 value={selectedHintValue || ""}
                 onChange={(e) =>
-                  setSelectedHintValue(parseInt(e.target.value) || null)
+                  setSelectedHintValue(parseInt(e.target.value) ?? null)
                 }
               >
                 <option value="">Select rank</option>
@@ -293,7 +302,7 @@ export function Game({ room, currentPlayer }: GameProps) {
                 style={styles.select}
                 value={selectedHintValue || ""}
                 onChange={(e) =>
-                  setSelectedHintValue(parseInt(e.target.value) || null)
+                  setSelectedHintValue(parseInt(e.target.value) ?? null)
                 }
               >
                 <option value="">Select color</option>
@@ -309,7 +318,7 @@ export function Game({ room, currentPlayer }: GameProps) {
               style={styles.select}
               value={selectedHintPlayer || ""}
               onChange={(e) =>
-                setSelectedHintPlayer(parseInt(e.target.value) || null)
+                setSelectedHintPlayer(parseInt(e.target.value) ?? null)
               }
             >
               <option value="">Select player</option>

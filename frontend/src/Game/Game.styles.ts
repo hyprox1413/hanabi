@@ -148,6 +148,16 @@ export const styles = {
     borderRadius: "6px",
     border: "1px solid #eee",
   },
+  turnPlayerHandContainer: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "10px",
+    padding: "15px",
+    backgroundColor: "#f9f9f9",
+    borderRadius: "6px",
+    border: "1px solid #eee",
+    boxShadow: "inset 0 0 15px rgba(0, 123, 255, 0.3), inset 0 0 30px rgba(0, 123, 255, 0.15)",
+  },
   playerName: {
     margin: "0",
     fontSize: "16px",

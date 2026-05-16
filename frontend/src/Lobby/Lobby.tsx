@@ -31,6 +31,23 @@ export function Lobby({ setScreen, currentRoom, setCurrentRoom, currentPlayer, s
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    const handleRoomState = (data: { room: RoomInfo }) => {
+      const { room } = data;
+      setCurrentRoom(room);
+      if (room.game) {
+        // Game has started
+        setScreen("GAME");
+      }
+    };
+
+    socket.on("room-state", handleRoomState);
+
+    return () => {
+      socket.off("room-state", handleRoomState);
+    };
+  }, [setCurrentRoom, setScreen]);
 
   // Fetch available rooms
   const fetchRooms = async () => {
@@ -160,24 +177,6 @@ export function Lobby({ setScreen, currentRoom, setCurrentRoom, currentPlayer, s
       setIsReady(true);
     }
   };
-
-  // Listen for room state updates
-  useEffect(() => {
-    const handleRoomState = (data: { room: RoomInfo }) => {
-      const { room } = data;
-      setCurrentRoom(room);
-      if (room.game) {
-        // Game has started
-        setScreen("GAME");
-      }
-    };
-
-    socket.on("room-state", handleRoomState);
-
-    return () => {
-      socket.off("room-state", handleRoomState);
-    };
-  });
 
   return (
     <div style={styles.container}>

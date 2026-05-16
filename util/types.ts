@@ -5,13 +5,18 @@ export interface CardInfo {
   colorKnown: boolean;
 }
 
-export interface MoveInfo {
-  action: "play" | "discard" | "hintRank" | "hintColor";
-  cardIndex?: number;
-  hintPlayerIndex?: number;
-  hintRank?: number;
-  hintColor?: number;
-}
+export type MoveInfo =
+  | { action: "play" | "discard"; cardIndex: number }
+  | {
+      action: "hintRank";
+      hintPlayerIndex: number;
+      hintRank: number;
+    }
+  | {
+      action: "hintColor";
+      hintPlayerIndex: number;
+      hintColor: number;
+    };
 
 export interface GameState {
   maxHints: number;
