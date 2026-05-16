@@ -165,19 +165,10 @@ export function Lobby({ setScreen, currentRoom, setCurrentRoom, currentPlayer, s
   useEffect(() => {
     const handleRoomState = (data: { room: Room }) => {
       const { room } = data;
+      setCurrentRoom(room);
       if (room.game) {
         // Game has started
         setScreen("GAME");
-      } else {
-        // Update room state
-        setCurrentRoom((prev: Room | null) =>
-          prev
-            ? {
-                ...prev,
-                players: room.players,
-              }
-            : null,
-        );
       }
     };
 
@@ -186,7 +177,7 @@ export function Lobby({ setScreen, currentRoom, setCurrentRoom, currentPlayer, s
     return () => {
       socket.off("room-state", handleRoomState);
     };
-  }, [setScreen]);
+  });
 
   return (
     <div style={styles.container}>

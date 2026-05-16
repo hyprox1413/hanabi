@@ -162,8 +162,7 @@ io.on("connection", (socket) => {
     }
 
     if (room.players.length > 1 && room.players.every((p: Player) => p.ready)) {
-      newGame(room);
-      io.to(room.id).emit("room-state", { room });
+      newGame(room, room.players.length);
     }
 
     io.to(room.id).emit("room-state", { room });

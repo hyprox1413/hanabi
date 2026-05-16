@@ -25,8 +25,7 @@ const COLOR_MAP: Record<number, string> = {
 };
 
 export function Game({ room, currentPlayer }: GameProps) {
-  const [gameState, setGameState] = useState<GameState | null>(null);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [gameState, setGameState] = useState<GameState | null>(room.game);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [selectedHintPlayer, setSelectedHintPlayer] = useState<number | null>(
     null,
@@ -41,13 +40,6 @@ export function Game({ room, currentPlayer }: GameProps) {
 
   // Initialize game state and listen for updates
   useEffect(() => {
-    if (room.game) {
-      setGameState(room.game);
-      // Find current player index
-      const index = room.players.findIndex((p) => p.id === currentPlayer.id);
-      setCurrentPlayerIndex(index);
-    }
-
     const handleGameUpdate = (data: { game: GameState }) => {
       setGameState(data.game);
       setError("");
@@ -58,7 +50,9 @@ export function Game({ room, currentPlayer }: GameProps) {
     return () => {
       socket.off("game-state", handleGameUpdate);
     };
-  }, [room, currentPlayer]);
+  });
+  
+  const playerTurn = room.players.findIndex((p) => p.id === currentPlayer.id);
 
   if (!gameState) {
     return <div style={styles.container}>Loading game...</div>;
@@ -71,8 +65,11 @@ export function Game({ room, currentPlayer }: GameProps) {
     }
 
     socket.emit("player-move", {
-      action: "play",
-      cardIndex: selectedCard,
+      playerId: currentPlayer.id,
+      move: {
+        action: "play",
+        cardIndex: selectedCard,
+      },
     });
 
     setSelectedCard(null);
@@ -85,8 +82,11 @@ export function Game({ room, currentPlayer }: GameProps) {
     }
 
     socket.emit("player-move", {
-      action: "discard",
-      cardIndex: selectedCard,
+      playerId: currentPlayer.id,
+      move: {
+        action: "discard",
+        cardIndex: selectedCard,
+      },
     });
 
     setSelectedCard(null);
@@ -219,7 +219,7 @@ export function Game({ room, currentPlayer }: GameProps) {
         <h3 style={styles.sectionTitle}>Other Players</h3>
         <div style={styles.otherPlayersGrid}>
           {gameState.hands.map((hand, playerIndex) => {
-            if (playerIndex === currentPlayerIndex) return null;
+            if (playerIndex === playerTurn) return null;
 
             const playerName =
               room.players[playerIndex]?.name || `Player ${playerIndex}`;
@@ -267,7 +267,7 @@ export function Game({ room, currentPlayer }: GameProps) {
         <div style={styles.actionGroup}>
           <h4 style={styles.actionTitle}>Your Hand</h4>
           <div style={styles.playerHand}>
-            {gameState.hands[currentPlayerIndex]?.map((card, cardIndex) =>
+            {gameState.hands[playerTurn]?.map((card, cardIndex) =>
               renderCard(card, cardIndex, true),
             )}
           </div>
@@ -359,7 +359,7 @@ export function Game({ room, currentPlayer }: GameProps) {
             >
               <option value="">Select player</option>
               {room.players.map((player, index) => {
-                if (index === currentPlayerIndex) return null;
+                if (index === playerTurn) return null;
                 return (
                   <option key={index} value={index}>
                     {player.name}

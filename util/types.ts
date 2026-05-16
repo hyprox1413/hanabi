@@ -7,10 +7,10 @@ export interface Card {
 
 export interface Move {
   action: "play" | "discard" | "hintRank" | "hintColor";
-  cardIndex: number;
-  hintPlayerIndex: number;
-  hintRank: number;
-  hintColor: number;
+  cardIndex?: number;
+  hintPlayerIndex?: number;
+  hintRank?: number;
+  hintColor?: number;
 }
 
 export interface Game {
