@@ -191,13 +191,6 @@ export function Lobby({ setScreen }: LobbyProps) {
     };
   }, [setScreen]);
 
-  // Load rooms on mount and when switching to join view
-  useEffect(() => {
-    if (view === "join") {
-      fetchRooms();
-    }
-  }, [view]);
-
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Hanabi</h1>
@@ -220,6 +213,7 @@ export function Lobby({ setScreen }: LobbyProps) {
             onClick={() => {
               setView("join");
               setError("");
+              fetchRooms();
             }}
           >
             Join Room
