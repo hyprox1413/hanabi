@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -9,15 +10,19 @@ import type { Move, Game, Room, Player } from "../util/types";
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server({
+  cors: {
+    origin: "http://localhost:5173"
+  }
+});
+
+io.listen(4000);
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const rooms = new Map<string, Room>();
 const roomsByPlayer = new Map<string, Room>();
-
-const playerSockets = new Map<string, string>(); // playerId -> socketId
-const socketPlayers = new Map<string, string>(); // socketId -> playerId
 
 // Middleware
 app.use(express.json());
@@ -30,7 +35,7 @@ app.get("/", (req, res) => {
 
 // HTTP endpoint to create a room
 app.post("/api/rooms", (req, res) => {
-  const { name, maxPlayers = 4 } = req.body;
+  const { name, maxPlayers } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: "Room name is required" });
@@ -185,8 +190,7 @@ io.on("connection", (socket) => {
       });
     }
 
-    io.to(roomId).emit("room-state", {
-      roomId,
+    io.to(room.id).emit("room-state", {
       roomName: room.name,
       players: room.players,
       playerCount: room.players.length,
@@ -196,8 +200,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("player-move", (data: { playerId: string, move: Move }) => {
-    const { roomId, playerId, move } = data;
-    const room = rooms.get(roomId);
+    const { playerId, move } = data;
+    const room = roomsByPlayer.get(playerId);
     if (!room) {
       socket.emit("error", { message: "Room not found" });
       return;
