@@ -171,6 +171,9 @@ io.on("connection", (socket) => {
   socket.on("player-move", (data: { playerId: string; move: Move }) => {
     const { playerId, move } = data;
     const room = roomsByPlayer.get(playerId);
+    
+    console.log("received move: ", move);
+    
     if (!room) {
       socket.emit("error", { message: "Player not in room" });
       return;

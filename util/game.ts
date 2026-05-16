@@ -10,11 +10,11 @@ export function getTurnPlayer(game: Game): number {
 
 function validateMove(game: Game, move: Move): boolean {
   const turnPlayer = getTurnPlayer(game);
-  if (move.action == "play" || move.action == "discard") {
+  if (move.action === "play" || move.action === "discard") {
     if (!move.cardIndex) return false;
     if (game.hands[turnPlayer]![move.cardIndex] == undefined) return false;
   }
-  if (move.action == "hintColor") {
+  if (move.action === "hintColor") {
     if (!move.hintPlayerIndex) return false;
     if (move.hintPlayerIndex < 0 || move.hintPlayerIndex >= game.hands.length) return false;
     if (move.hintPlayerIndex == turnPlayer) return false;
@@ -23,7 +23,7 @@ function validateMove(game: Game, move: Move): boolean {
     if (!move.hintColor) return false;
     if (move.hintColor < 0 || move.hintColor >= COLORS.length) return false;
   }
-  if (move.action == "hintRank") {
+  if (move.action === "hintRank") {
     if (!move.hintPlayerIndex) return false;
     if (move.hintPlayerIndex < 0 || move.hintPlayerIndex >= game.hands.length) return false;
     if (move.hintPlayerIndex == turnPlayer) return false;
@@ -46,7 +46,7 @@ export function makeMove(game: Game, move: Move): boolean {
   if (!validateMove(game, move)) return false;
   const turnPlayer = getTurnPlayer(game);
   
-  if (move.action == "play") {
+  if (move.action === "play") {
     const card = game.hands[turnPlayer]![move.cardIndex!]!;
     loseCard(game, move);
     
@@ -57,7 +57,7 @@ export function makeMove(game: Game, move: Move): boolean {
     }
   }
   
-  if (move.action == "discard") {
+  if (move.action === "discard") {
     const card = game.hands[turnPlayer]![move.cardIndex!]!;
     loseCard(game, move);
     game.discarded.push(card);
@@ -66,14 +66,14 @@ export function makeMove(game: Game, move: Move): boolean {
     }
   }
   
-  if (move.action == "hintRank") {
+  if (move.action === "hintRank") {
     game.hintsRemaining--;
     for (const card of game.hands[move.hintPlayerIndex!]!) {
       if (card.rank == move.hintRank) card.rankKnown = true;
     }
   }
   
-  if (move.action == "hintColor") {
+  if (move.action === "hintColor") {
     game.hintsRemaining--;
     for (const card of game.hands[move.hintPlayerIndex!]!) {
       if (card.color == move.hintColor) card.colorKnown = true;

@@ -45,7 +45,12 @@ export function Game({ room, currentPlayer }: GameProps) {
       setError("");
     };
 
+    const logError = (data) => {
+      console.error(data);
+    }
+
     socket.on("game-state", handleGameUpdate);
+    socket.on("error", logError)
 
     return () => {
       socket.off("game-state", handleGameUpdate);
