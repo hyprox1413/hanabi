@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { socket } from "./socket";
+import { } from "./socket";
 import { Lobby } from "./Lobby/Lobby";
 import { Game } from "./Game/Game";
 import { GameDebug } from "./debug/GameDebug";

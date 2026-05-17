@@ -8,8 +8,8 @@ interface CardProps {
   card: CardInfo;
   index: number;
   isOwnCard: boolean;
-  selectedCard: number;
-  setSelectedCard: Dispatch<SetStateAction<number>>;
+  selectedCard: number | null;
+  setSelectedCard: Dispatch<SetStateAction<number | null>>;
 }
 
 export function Card({

@@ -7,7 +7,6 @@ import { getTurnPlayer } from "../../../util/game";
 
 import type {
   GameState,
-  CardInfo,
   PlayerInfo,
   RoomInfo,
 } from "../../../util/types";
@@ -16,10 +15,10 @@ import type { Dispatch, SetStateAction } from "react";
 interface GameProps {
   screen: string;
   setScreen: Dispatch<SetStateAction<string>>;
-  room: RoomInfo;
-  setRoom: Dispatch<SetStateAction<RoomInfo>>;
-  currentPlayer: PlayerInfo;
-  setCurrentPlayer: Dispatch<SetStateAction<PlayerInfo>>;
+  room: RoomInfo | null;
+  setRoom: Dispatch<SetStateAction<RoomInfo | null>>;
+  currentPlayer: PlayerInfo | null;
+  setCurrentPlayer: Dispatch<SetStateAction<PlayerInfo | null>>;
 }
 
 export function Game({ room, currentPlayer }: GameProps) {
