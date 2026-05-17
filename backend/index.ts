@@ -5,7 +5,6 @@ import { Server } from "socket.io";
 import { newGame, getTurnPlayer, makeMove } from "../util/game";
 
 import type { MoveInfo, GameState, PlayerInfo, RoomInfo } from "../util/types";
-import { couldStartTrivia } from "typescript";
 
 const app = express();
 const server = createServer(app);
