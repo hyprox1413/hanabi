@@ -83,12 +83,15 @@ export const styles = {
     gap: "20px",
     width: "100%",
     maxWidth: "500px",
+    alignItems: "center",
   },
   roomsList: {
     display: "flex",
     flexDirection: "column" as const,
     gap: "10px",
     maxHeight: "400px",
+    width: "100%",
+    maxWidth: "400px",
     overflowY: "auto" as const,
   },
   roomCard: {
