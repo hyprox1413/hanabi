@@ -13,8 +13,6 @@ const SCREENS = {
   GAME: "GAME",
 };
 
-document.title = "Hanabi";
-
 function App() {
   const [screen, setScreen] = useState(SCREENS.LOBBY);
   const [currentRoom, setCurrentRoom] = useState<RoomInfo | null>(null);
