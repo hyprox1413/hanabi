@@ -56,6 +56,7 @@ export function makeMove(game: GameState, move: MoveInfo): boolean {
           }
         }
       } else {
+        game.discarded.push(card);
         game.livesRemaining--;
       }
     }
