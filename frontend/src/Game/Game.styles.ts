@@ -282,7 +282,7 @@ export const styles = {
     fontFamily: "inherit",
     backgroundColor: "white",
     cursor: "pointer",
-    color: "white",
+    color: "black",
   },
 
   // Error
