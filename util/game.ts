@@ -50,6 +50,11 @@ export function makeMove(game: GameState, move: MoveInfo): boolean {
     if (move.action === "play") {
       if (game.tableau[card.color] == card.rank - 1) {
         game.tableau[card.color] = card.rank;
+        if (game.tableau[card.color] == NUM_COPIES.length - 1) {
+          if (game.hintsRemaining < game.maxHints) {
+            game.hintsRemaining++;
+          }
+        }
       } else {
         game.livesRemaining--;
       }
